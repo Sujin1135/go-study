@@ -12,27 +12,24 @@ func main() {
 
 	wg.Add(1)
 	go square(&wg, ch)
-
 	for i := 0; i < 10; i++ {
-		ch <- i * i
+		ch <- i + 1
 	}
-
+	close(ch)
 	wg.Wait()
 }
 
 func square(wg *sync.WaitGroup, ch chan int) {
-	tick := time.Tick(time.Second)            // 일정 시간마다 신호를 주는 채널
-	terminate := time.After(10 * time.Second) // 일정 시간 후 한번 신호를 주는 채널
+	tick := time.Tick(time.Second)
+	terminate := time.After(10 * time.Second)
 
 	for {
-		// animation 60fps + input
 		select {
 		case <-tick:
 			fmt.Println("Tick")
 		case <-terminate:
 			fmt.Println("Terminated")
 			wg.Done()
-			return
 		case n := <-ch:
 			fmt.Println("Square:", n*n)
 			time.Sleep(time.Second)

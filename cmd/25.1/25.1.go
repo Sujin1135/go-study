@@ -8,18 +8,24 @@ import (
 
 func main() {
 	var wg sync.WaitGroup
-	ch := make(chan int)
+	ch := make(chan int, 2)
 
-	wg.Add(1)
-	go sqaure(&wg, ch)
+	wg.Add(2)
+
+	go square(&wg, ch)
+	go square(&wg, ch)
+
 	ch <- 9
+	ch <- 8
+
 	wg.Wait()
 }
 
-func sqaure(wg *sync.WaitGroup, ch chan int) {
+func square(wg *sync.WaitGroup, ch chan int) {
 	n := <-ch
 
 	time.Sleep(time.Second)
-	fmt.Println("Sqaure:", n*n)
+
+	fmt.Println("Square:", n*n)
 	wg.Done()
 }

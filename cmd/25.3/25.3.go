@@ -8,12 +8,13 @@ import (
 
 func main() {
 	var wg sync.WaitGroup
-	ch := make(chan int, 10)
+	chSize := 10
+	ch := make(chan int, chSize)
 
 	wg.Add(1)
 	go sqaure(&wg, ch)
 
-	for i := 0; i < 10; i++ {
+	for i := 0; i < chSize; i++ {
 		ch <- i * 2
 	}
 	close(ch)
