@@ -2,28 +2,30 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 )
 
 type Subscriber struct {
-	ctx   context.Context
-	name  string
-	msgCh chan string
+	ctx         context.Context
+	name        string
+	subscribeCh chan string
 }
 
-func NewSubscriber(name string, ctx context.Context) *Subscriber {
-	return &Subscriber{ctx: ctx, name: name, msgCh: make(chan string)}
+func NewSubscriber(ctx context.Context) (*Subscriber, error) {
+	if v := ctx.Value("name"); v != nil {
+		subscriber := &Subscriber{ctx: ctx, name: v.(string), subscribeCh: make(chan string)}
+		go subscriber.update()
+		return subscriber, nil
+	}
+	return nil, errors.New("failed to create a new subscriber")
 }
 
-func (s *Subscriber) Subscribe(publisher *Publisher) {
-	publisher.Subscribe(s.msgCh)
-}
-
-func (s *Subscriber) Update() {
+func (s *Subscriber) update() {
 	for {
 		select {
-		case msg := <-s.msgCh:
-			fmt.Printf("publish message is %s to %s\n", msg, s.name)
+		case message := <-s.subscribeCh:
+			fmt.Printf("%s is sent message as %s\n", s.name, message)
 		case <-s.ctx.Done():
 			wg.Done()
 			return

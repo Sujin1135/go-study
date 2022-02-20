@@ -10,25 +10,29 @@ import (
 var wg sync.WaitGroup
 
 func main() {
-	ctx, cancel := context.WithCancel(context.Background())
-
+	seconds := time.Duration(5)
+	ctx, _ := context.WithTimeout(context.Background(), seconds*time.Second)
 	wg.Add(4)
 
 	publisher := NewPublisher(ctx)
 
-	go publisher.Update()
+	chrisCtx := context.WithValue(ctx, "name", "chris")
+	chris, err := NewSubscriber(chrisCtx)
+	if err != nil {
+		fmt.Errorf("Occurred an error when try to create chris:%e", err)
+	}
 
-	subscriber := NewSubscriber("Chris", ctx)
-	subscriber2 := NewSubscriber("Susan", ctx)
+	susanCtx := context.WithValue(ctx, "name", "susan")
+	susan, err := NewSubscriber(susanCtx)
+	if err != nil {
+		fmt.Errorf("Occurred an error when try to create susan:%e", err)
+	}
 
-	subscriber.Subscribe(publisher)
-	subscriber2.Subscribe(publisher)
-
-	go subscriber.Update()
-	go subscriber2.Update()
+	publisher.Subscribe(chris.subscribeCh)
+	publisher.Subscribe(susan.subscribeCh)
 
 	go func() {
-		tick := time.Tick(time.Second * 2)
+		tick := time.Tick(time.Second * 1)
 		for {
 			select {
 			case <-tick:
@@ -39,9 +43,6 @@ func main() {
 			}
 		}
 	}()
-
-	fmt.Scanln()
-	cancel()
 
 	wg.Wait()
 }
