@@ -1,0 +1,2 @@
+access_key=$accesskey!a
+secret_key=sceiaewf!$123
