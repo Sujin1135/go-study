@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"strconv"
+)
 
 func square(x int) int {
 	return x * x
@@ -33,6 +36,14 @@ func fibonacci2(n int) int {
 		one = rst
 	}
 	return rst
+}
+
+func AtoI(input string) (int, error) {
+	if sv, err := strconv.Atoi(input); err != nil {
+		return 0, nil
+	} else {
+		return sv, err
+	}
 }
 
 func main() {
