@@ -6,11 +6,11 @@ import (
 )
 
 func IndexPathHandler(w http.ResponseWriter, r *http.Request) {
-	//	TODO: write the code
-	fmt.Fprint(w, "Hello World")
+	fmt.Fprintf(w, "Requested method is %s\n", r.Method)
 }
 
 func main() {
 	http.HandleFunc("/", IndexPathHandler)
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	http.ListenAndServe(":3000", nil)
 }
