@@ -5,6 +5,7 @@ import (
 	"github.com/gorilla/mux"
 	"net/http"
 	"sort"
+	"strconv"
 )
 
 type Student struct {
@@ -42,9 +43,24 @@ func GetStudentListHandler(w http.ResponseWriter, _ *http.Request) {
 	json.NewEncoder(w).Encode(list)
 }
 
+func GetStudentHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, _ := strconv.Atoi(vars["id"])
+	student, ok := students[id]
+	if !ok {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(student)
+}
+
 func MakeWebHandler() http.Handler {
 	mux := mux.NewRouter()
 	mux.HandleFunc("/students", GetStudentListHandler).Methods("GET")
+	mux.HandleFunc("/students/{id:[0-9]+}", GetStudentHandler).Methods("GET")
 
 	students = make(map[int]Student)
 	students[1] = Student{1, "aaa", 16, 87}
