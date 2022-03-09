@@ -57,10 +57,25 @@ func GetStudentHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(student)
 }
 
+func CreateStudentHandler(w http.ResponseWriter, r *http.Request) {
+	var student Student
+	err := json.NewDecoder(r.Body).Decode(&student)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	lastId++
+	student.Id = lastId
+	students[lastId] = student
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(student)
+}
+
 func MakeWebHandler() http.Handler {
 	mux := mux.NewRouter()
 	mux.HandleFunc("/students", GetStudentListHandler).Methods("GET")
 	mux.HandleFunc("/students/{id:[0-9]+}", GetStudentHandler).Methods("GET")
+	mux.HandleFunc("/students", CreateStudentHandler).Methods("POST")
 
 	students = make(map[int]Student)
 	students[1] = Student{1, "aaa", 16, 87}
